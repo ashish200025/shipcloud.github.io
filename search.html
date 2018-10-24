@@ -1,0 +1,42 @@
+---
+layout: full
+---
+<form action="/search.html" method="get">
+  <label for="search-box">Search</label>
+  <input type="text" id="search-box" name="query">
+  <input type="submit" value="search">
+</form>
+
+<ul id="search-results"></ul>
+
+<script>
+  window.documents = [
+    {% assign count = 0 %}
+    {% for page in site.pages %}
+      {% if page.url == '/concepts/' or page.url == '/integrations/' or page.url == '/examples/' or page.url == '/reference/' %}
+        {% assign count = count | plus: 1 %}
+        {% if count > 1 %},{% endif %}
+        {
+          "title": "{{ page.title | xml_escape }}",
+          "content": "{{page.content | strip_html | strip_newlines | remove:  "	" | escape | remove: "\"}}",
+          "url": "{{ page.url | slugify }}"
+        }
+      {% endif %}
+    {% endfor %}
+  ];
+  
+  window.store = {
+    {% for page in site.pages %}
+      {% if page.url == '/concepts/' or page.url == '/integrations/' or page.url == '/examples/' or page.url == '/reference/' %}
+        "{{ page.url | slugify }}":  {
+          "title": "{{ page.title | xml_escape }}",
+          "content": "{{page.content | strip_html | strip_newlines | remove:  "	" | escape | remove: "\"}}",
+          "url": "{{ page.url | slugify }}"
+        }
+      {% unless forloop.last %},{% endunless %}
+      {% endif %}
+    {% endfor %}
+  };
+</script>
+<script src="/scripts/lunrjs/lunr.js"></script>
+<script src="/scripts/search.js"></script>
